@@ -135,27 +135,38 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
 if DEBUG:
     CELERY_TASK_ALWAYS_EAGER = True
 
-
 # ++++++++++++++++++++++++++++ DRF ++++++++++++++++++++++++++++++
 
-
 REST_FRAMEWORK = {
+    # Настройки для классов рендеринга
     'DEFAULT_RENDERER_CLASSES': [
+        # Класс рендеринга для вывода данных в формате JSON
         'rest_framework.renderers.JSONRenderer',
+        # Класс рендеринга для вывода данных в формате HTML с удобным интерфейсом для браузера
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+
+    # Настройки для классов парсинга
     'DEFAULT_PARSER_CLASSES': [
+        # Класс парсинга для обработки данных в формате JSON
         'rest_framework.parsers.JSONParser',
+        # Класс парсинга для обработки данных, загруженных через multipart/form-data, например, при загрузке файлов
         'rest_framework.parsers.MultiPartParser',
     ],
+
+    # Настройки для классов аутентификации
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",  # Для работы с BrowsableAPI
-        "rest_framework_simplejwt.authentication.JWTAuthentication"  # JWT
+        # Класс аутентификации сессии, использующийся для работы с Browsable API
+        "rest_framework.authentication.SessionAuthentication",
+        # Класс аутентификации JWT, обеспечивающий безопасность через JWT-токены
+        "rest_framework_simplejwt.authentication.JWTAuthentication"
     ],
-    "PAGE_SIZE": 50,
+
+    "PAGE_SIZE": 50,  # Настройка размера страницы для пагинации
+
+    # Настройки для классов фильтрации
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
-
 
 # ---------------------------- JWT ---------------------------------
 
