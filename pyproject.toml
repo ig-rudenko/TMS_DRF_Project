@@ -19,6 +19,7 @@ django-filter = "^24.3"
 
 [tool.poetry.group.dev.dependencies]
 django-debug-toolbar = "^4.4.6"
+black = {extras = ["d"], version = "^24.8.0"}
 
 [build-system]
 requires = ["poetry-core"]

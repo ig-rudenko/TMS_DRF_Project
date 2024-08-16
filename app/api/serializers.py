@@ -14,11 +14,13 @@ class UserSerializer(serializers.ModelSerializer):
         # Указываем модель, для которой создается сериализатор
         model = get_user_model()
         # Указываем поля, которые будут включены в сериализованный выходной результат
-        fields = ['id', 'username', 'email']
+        fields = ["id", "username", "email"]
 
 
 class PostSerializer(serializers.ModelSerializer):
     """Сериализатор для модели поста"""
+
+    short_content = serializers.CharField()
 
     # Определяем поле для тегов, используя SlugRelatedField для сериализации отношений с моделью Tag
     tags = serializers.SlugRelatedField(many=True, slug_field="name", queryset=Tag.objects.all())
@@ -29,9 +31,12 @@ class PostSerializer(serializers.ModelSerializer):
         # Указываем модель, для которой создается сериализатор
         model = Post
         # Указываем поля, которые будут включены в сериализованный выходной результат
-        fields = ["id", 'title', 'content', "tags", "user", "short_content"]
+        fields = ["id", "title", "content", "tags", "user", "short_content"]
         # Указываем поля, которые будут доступны только для чтения
         read_only_fields = ["id", "user", "short_content"]
+        extra_kwargs = {
+            "content": {"write_only": True},
+        }
 
     # Метод для валидации поля 'title'
     def validate_title(self, value: str) -> str:
@@ -45,7 +50,7 @@ class PostSerializer(serializers.ModelSerializer):
     # Метод для общей валидации данных
     def validate(self, attrs):
         # Проверяем, совпадают ли значения заголовка и содержимого
-        if attrs['title'] == attrs['content']:
+        if attrs["title"] == attrs["content"]:
             # Если заголовок совпадает с содержимым, выбрасываем ошибку валидации
             raise ValidationError("Заголовок не должен совпадать с текстом")
         # Возвращаем валидные атрибуты

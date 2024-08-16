@@ -1,3 +1,4 @@
+from django.db.models.functions.text import Substr
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.generics import ListCreateAPIView
@@ -10,6 +11,7 @@ from rest_framework.views import APIView
 from app.models import Post
 from .filters import PostFilter
 from .serializers import PostSerializer
+from .services import get_cached_posts_list, clean_cached_posts_list
 
 
 # Функция представления на основе декоратора для простого API-запроса
@@ -84,9 +86,24 @@ class PostsGenericListCreateAPIView(ListCreateAPIView):
     # Метод для получения набора данных (queryset) для запросов
     def get_queryset(self):
         # Возвращаем отфильтрованные объекты Post, связанные с текущим пользователем
-        return Post.objects.filter(user=self.request.user).select_related("user").prefetch_related("tags")
+        qs = (
+            Post.objects.filter(user=self.request.user)
+            .annotate(short_content=Substr("content", 1, 10))
+            .select_related("user")
+            .prefetch_related("tags")
+            .only("title", "tags", "user__username", "user__email")
+        )
+        return qs
+
+    def get(self, request, *args, **kwargs):
+        data = get_cached_posts_list(
+            self.request,
+            lambda: super(PostsGenericListCreateAPIView, self).get(request, *args, **kwargs).data,
+        )
+        return Response(data)
 
     # Метод для выполнения дополнительных действий при создании объекта
     def perform_create(self, serializer):
         # Сохраняем объект Post, связывая его с текущим пользователем
         serializer.save(user=self.request.user)
+        clean_cached_posts_list(self.request)

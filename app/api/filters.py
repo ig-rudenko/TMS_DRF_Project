@@ -14,6 +14,4 @@ class PostFilter(filters.FilterSet):
     def search_text(self, queryset, name, value):
         # Фильтруем queryset, используя оператор Q для поиска по частичному совпадению текста
         # Осуществляется поиск по полям 'title' и 'content', независимо от регистра
-        return queryset.filter(
-            Q(title__icontains=value) | Q(content__icontains=value)
-        )
+        return queryset.filter(Q(title__icontains=value) | Q(content__icontains=value))
